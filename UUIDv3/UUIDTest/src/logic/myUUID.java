@@ -87,6 +87,8 @@ public class myUUID {
 		String newUUID = generateUUID();
 		myUUID UUID = new myUUID(newUUID, sourceEntityId, entityTypeId, 1, sourceId);
 		dao.insert(UUID);
+		System.out.println("New UUID created and inserted into UUIDMaster database");
+		System.out.println("New UUID: " + newUUID);
 	}
 	
 	// Function that updates the EntityVersion in the database
@@ -94,5 +96,6 @@ public class myUUID {
 	public static void updateVersion(myUUID UUID) {
 		UUIDDAO dao = new UUIDDAO();
 		dao.updateVersion(UUID);
+		System.out.println("UUID version set to " + UUID.getEntityVersion());
 	}
 }
