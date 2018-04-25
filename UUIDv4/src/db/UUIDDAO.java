@@ -5,6 +5,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import logic.Entity;
+import logic.Source;
 import logic.myUUID;
 
 public class UUIDDAO extends BaseDAO{
@@ -88,6 +90,7 @@ public class UUIDDAO extends BaseDAO{
 		
 		return result;
 	}
+	
 	public ArrayList<myUUID> getByUUID(String UUID) {
 		ArrayList<myUUID> result = new ArrayList<myUUID>();
 		
@@ -134,13 +137,104 @@ public class UUIDDAO extends BaseDAO{
 		
 		return result;
 	}
-	public void updateVersion(myUUID UUID) {
+	
+	public ArrayList<Entity> getEntityByName(String entityName) {
+		
+		ArrayList<Entity> result = new ArrayList<Entity>();
 		
 		PreparedStatement ps = null;
 		
 		ResultSet rs = null;
 
-		String sql = "UPDATE UUID SET EntityVersion = EntityVersion + 1 WHERE UUID=?";
+		String sql = "SELECT * FROM EntityType WHERE name=?";
+		
+		try {
+
+			if (getConnection().isClosed()) {
+				throw new IllegalStateException("error unexpected");
+			}
+			ps = getConnection().prepareStatement(sql);
+			
+			ps.setString(1, entityName);
+
+			rs = ps.executeQuery();
+			
+			while(rs.next()) { 
+				int ID = rs.getInt("id"); 
+				String name = rs.getString("name"); 
+				
+				Entity entity = new Entity(ID, name);
+				result.add(entity);
+			}
+			
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+			throw new RuntimeException(e.getMessage());
+		} finally {
+			try {
+				if (ps != null)
+					ps.close();
+
+			} catch (SQLException e) {
+				System.out.println(e.getMessage());
+				;
+				throw new RuntimeException("error unexpected");
+			}
+		}
+		return result;
+	}
+	
+	public ArrayList<Source> getSourceByName(String sourceName) {
+		
+		ArrayList<Source> result = new ArrayList<Source>();
+		
+		PreparedStatement ps = null;
+		
+		ResultSet rs = null;
+
+		String sql = "SELECT * FROM Source WHERE Name=?";
+		
+		try {
+
+			if (getConnection().isClosed()) {
+				throw new IllegalStateException("error unexpected");
+			}
+			ps = getConnection().prepareStatement(sql);
+			
+			ps.setString(1, sourceName);
+
+			rs = ps.executeQuery();
+			
+			while(rs.next()) { 
+				int ID = rs.getInt("id"); 
+				String name = rs.getString("name"); 
+				
+				Source source = new Source(ID, name);
+				result.add(source);
+			}
+			
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+			throw new RuntimeException(e.getMessage());
+		} finally {
+			try {
+				if (ps != null)
+					ps.close();
+
+			} catch (SQLException e) {
+				System.out.println(e.getMessage());
+				;
+				throw new RuntimeException("error unexpected");
+			}
+		}
+		return result;
+	}
+	
+	public void updateVersion(myUUID UUID) {
+		
+		PreparedStatement ps = null;
+
+		String sql = "UPDATE UUID SET EntityVersion = EntityVersion + 1 WHERE UUID=? AND Source_EntityID=? AND EntityTypeID=? AND SourceID=?";
 		
 		try {
 
@@ -150,16 +244,12 @@ public class UUIDDAO extends BaseDAO{
 			ps = getConnection().prepareStatement(sql);
 			
 			ps.setString(1, UUID.getUUID_ID());
+			ps.setString(2, UUID.getSource_EntityID());
+			ps.setInt(3, UUID.getEntityTypeID());
+			ps.setInt(4, UUID.getSource_ID());
 			
-			
-			
-			
-
 			ps.executeUpdate();
 			ps.close();
-			
-			
-			
 			
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());

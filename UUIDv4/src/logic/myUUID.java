@@ -82,20 +82,66 @@ public class myUUID {
 	
 	// Function that creates new UUID row into the database
 	// Parameters of this function came from message
-	public static void insertNewUUID(String sourceEntityId, int entityTypeId, int sourceId) {
-		UUIDDAO dao = new UUIDDAO();
-		String newUUID = generateUUID();
-		myUUID UUID = new myUUID(newUUID, sourceEntityId, entityTypeId, 1, sourceId);
-		dao.insert(UUID);
-		System.out.println("New UUID created and inserted into UUIDMaster database");
-		System.out.println("New UUID: " + newUUID);
+	public static myUUID createNewUUID(String sourceEntityId, String entityName, String sourceName) {
+		try {
+			UUIDDAO dao = new UUIDDAO();
+			String newUUID = generateUUID();
+			
+			ArrayList<Entity> entity = dao.getEntityByName(entityName);
+			ArrayList<Source> source = dao.getSourceByName(sourceName);
+			
+			myUUID UUID = new myUUID(newUUID, sourceEntityId, entity.get(0).getId(), 1, source.get(0).getId());
+			dao.insert(UUID);
+			System.out.println("Folowing row has been inserted to the database: ");
+			System.out.println("UUID: " + newUUID);
+			System.out.println("Source_EntityID: " + sourceEntityId);
+			System.out.println("Entity: " + entity.get(0).getName());
+			System.out.println("Entity_Version: 1");
+			System.out.println("Source: " + source.get(0).getName());
+			return UUID;
+		}
+		catch (Exception e) {
+			System.out.println("Something went wrong");
+			return null;
+		}
+	}
+	
+	// Function that inserts a known UUID when an other system recieves an entity
+	// with a UUID Id that is not known for the system
+	public static myUUID insertUUID(String UUIDToinsert, String sourceEntityId, String entityName, String sourceName) {
+		try {
+			UUIDDAO dao = new UUIDDAO();
+			
+			ArrayList<Entity> entity = dao.getEntityByName(entityName);
+			ArrayList<Source> source = dao.getSourceByName(sourceName);
+			
+			myUUID UUID = new myUUID(UUIDToinsert, sourceEntityId, entity.get(0).getId(), 1, source.get(0).getId());
+			
+			dao.insert(UUID);
+			System.out.println("Folowing row has been inserted to the database: ");
+			System.out.println("UUID: " + UUIDToinsert);
+			System.out.println("Source_EntityID: " + sourceEntityId);
+			System.out.println("Entity: " + entityName);
+			System.out.println("Entity_Version: 1");
+			System.out.println("Source: " + sourceName);
+			return UUID;
+		}
+		catch(Exception e) {
+			System.out.println("Something went wrong");
+			return null;
+		}
 	}
 	
 	// Function that updates the EntityVersion in the database
 	// the parameter is form the message
-	public static void updateVersion(myUUID UUID) {
+	public static void updateVersion(String findUUID, String sourceEntityID, String entityName, String sourceName) {
 		UUIDDAO dao = new UUIDDAO();
+		
+		ArrayList<Entity> entity = dao.getEntityByName(entityName);
+		ArrayList<Source> source = dao.getSourceByName(sourceName);
+		
+		myUUID UUID = new myUUID(findUUID, sourceEntityID, entity.get(0).getId(), 0, source.get(0).getId());
 		dao.updateVersion(UUID);
-		System.out.println("UUID version set to " + UUID.getEntityVersion());
+		System.out.println("UUID version updated");
 	}
 }

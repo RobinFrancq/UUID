@@ -1,6 +1,7 @@
 package logic;
 
 public class UUIDMaster {
+	/*
 	public static void main(String[] args) {
 		if (args[0].equals("createNewUUID")) {
 			String sourceEntityId = args[1];
@@ -24,4 +25,5 @@ public class UUIDMaster {
 			System.out.println("Something went wrong");
 		}
 	}
+	*/
 }
